@@ -1,3 +1,5 @@
+import { getHolidayInfo } from "../api/day.js";
+
 const getFormattedDate = () => {
   const today = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Shanghai" }));
   const formattedDate =
@@ -12,14 +14,12 @@ const getFormattedDate = () => {
 const getIsWorkDay = async () => {
   try {
     const dateStr = getFormattedDate();
-    const url = `http://timor.tech/api/holiday/info/${dateStr}`;
-    const response = (await request.get) < HolidayResponse > url;
-    const data = response.data;
-    if (data.code === ServiceStatus.Error) {
+    const response = await getHolidayInfo(dateStr)
+    if (response.code === -1) {
       throw new Error("获取节假日信息失败");
     }
-    const { type } = data;
-    return type.type === HolidayType.WorkDay || type.type === HolidayType.Adjustment;
+    const { type } = response;
+    return type.type === 0 || type.type === 3;
   } catch (error) {
     return true;
   }
